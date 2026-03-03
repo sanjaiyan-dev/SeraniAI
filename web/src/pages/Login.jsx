@@ -85,7 +85,7 @@ const Login = () => {
                 required
               />
               <div className="text-right mt-2">
-                <a href="#" className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium">Forgot Password?</a>
+                <Link to="/forget-password" className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium">Forgot Password?</Link>
               </div>
             </div>
 
@@ -108,16 +108,32 @@ const Login = () => {
             </div>
 
             <div className="flex justify-center gap-4 mt-4">
-              <button className="bg-white dark:bg-slate-700 p-3 rounded-full shadow-md hover:shadow-lg hover:scale-110 transition-all duration-300 border border-slate-100 dark:border-slate-600">
-                <FcGoogle size={24} />
-              </button>
-              <button className="bg-white dark:bg-slate-700 p-3 rounded-full shadow-md hover:shadow-lg hover:scale-110 transition-all duration-300 border border-slate-100 dark:border-slate-600">
-                <FaGithub size={24} className="text-slate-800 dark:text-white" />
-              </button>
-              <button className="bg-white dark:bg-slate-700 p-3 rounded-full shadow-md hover:shadow-lg hover:scale-110 transition-all duration-300 border border-slate-100 dark:border-slate-600">
-                <FaFacebook size={24} className="text-blue-600" />
-              </button>
-            </div>
+
+  {/* Google */}
+  <a
+    href="http://localhost:7001/api/auth/google"
+    className="p-3 rounded-full bg-white shadow-md hover:scale-110 transition duration-300"
+  >
+    <FcGoogle size={24} />
+  </a>
+
+  {/* GitHub */}
+  <a
+    href="http://localhost:7001/api/auth/github"
+    className="p-3 rounded-full bg-white shadow-md hover:scale-110 transition duration-300"
+  >
+    <FaGithub size={24} className="text-black" />
+  </a>
+
+  {/* Facebook */}
+  <a
+    href="http://localhost:7001/api/auth/facebook"
+    className="p-3 rounded-full bg-white shadow-md hover:scale-110 transition duration-300"
+  >
+    <FaFacebook size={24} className="text-blue-600" />
+  </a>
+
+</div>
 
             <p className="text-slate-500 dark:text-slate-400 text-sm mt-8">
               Don't have an account? <Link to="/register" className="text-blue-600 dark:text-blue-400 font-bold hover:underline">Register for free</Link>

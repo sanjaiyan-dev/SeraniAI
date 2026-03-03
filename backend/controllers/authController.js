@@ -147,3 +147,44 @@ exports.loginUser = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+exports.forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  console.log("Received forgot password request for email:", email);
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    // Get reset token
+    const resetToken = user.createPasswordResetToken();
+console.log("User found for forgot password:", user.name, user.email);
+
+    await user.save({ validateBeforeSave: false });
+
+    // Create reset URL
+    const resetUrl = `${req.protocol}://${req.get('host')}/api/auth/resetpassword/${resetToken}`;
+
+    const message = `You are receiving this email because you (or someone else) has requested the reset of a password. Please make a PUT request to: \n\n ${resetUrl}`;
+
+    try {
+      await sendVerificationEmail(
+         user.email,
+      
+        message,
+      );
+
+      res.status(200).json({ success: true, data: 'Email sent' });
+    } catch (err) {
+      user.passwordResetToken = undefined;
+      user.passwordResetExpires = undefined;
+console.log('jshfukefhiu');
+
+      await user.save({ validateBeforeSave: false });
+      return res.status(500).json({ message: 'Email could not be sent' });
+    }
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ message: error.message });
+  }
+};
