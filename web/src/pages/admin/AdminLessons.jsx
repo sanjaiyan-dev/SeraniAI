@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import {
   FiEdit,
@@ -6,7 +6,7 @@ import {
   FiEye,
   FiThumbsUp,
   FiThumbsDown,
-  FiStar
+  FiStar,
 } from "react-icons/fi";
 
 const AdminLessons = () => {
@@ -15,14 +15,16 @@ const AdminLessons = () => {
     description: "",
     videoUrl: "",
     thumbnail: null,
-    video: null
+    video: null,
   };
 
   const { courseId } = useParams();
   const location = useLocation();
 
   const [lessons, setLessons] = useState([]);
-  const [courseName, setCourseName] = useState(location.state?.courseTitle || "");
+  const [courseName, setCourseName] = useState(
+    location.state?.courseTitle || "",
+  );
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formErrors, setFormErrors] = useState({});
@@ -41,7 +43,8 @@ const AdminLessons = () => {
     const query = lessonSearch.trim().toLowerCase();
 
     const filtered = lessons.filter((lesson) => {
-      const titleMatch = !query || (lesson.title || "").toLowerCase().includes(query);
+      const titleMatch =
+        !query || (lesson.title || "").toLowerCase().includes(query);
       const hasVideo = !!lesson.videoFile || !!lesson.videoUrl;
       const videoMatch =
         videoFilter === "all" ||
@@ -51,10 +54,14 @@ const AdminLessons = () => {
     });
 
     const sorted = [...filtered].sort((a, b) => {
-      if (lessonSort === "title-asc") return (a.title || "").localeCompare(b.title || "");
-      if (lessonSort === "title-desc") return (b.title || "").localeCompare(a.title || "");
-      if (lessonSort === "newest") return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
-      if (lessonSort === "oldest") return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
+      if (lessonSort === "title-asc")
+        return (a.title || "").localeCompare(b.title || "");
+      if (lessonSort === "title-desc")
+        return (b.title || "").localeCompare(a.title || "");
+      if (lessonSort === "newest")
+        return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+      if (lessonSort === "oldest")
+        return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
       return (a.order || 0) - (b.order || 0);
     });
 
@@ -63,25 +70,23 @@ const AdminLessons = () => {
 
   /* ---------------- FETCH LESSONS ---------------- */
 
-  const fetchLessons = async () => {
+  const fetchLessons = useCallback(async () => {
     try {
-
       const res = await fetch(
-        `http://localhost:7001/api/lessons/course/${courseId}`
+        `http://localhost:7001/api/lessons/course/${courseId}`,
       );
 
       const data = await res.json();
 
       setLessons(data);
-
     } catch (err) {
       console.log(err);
     }
-  };
+  }, [courseId]);
 
   useEffect(() => {
     fetchLessons();
-  }, [courseId]);
+  }, [courseId, fetchLessons]);
 
   const extractErrorMessage = async (res, fallback) => {
     try {
@@ -152,7 +157,8 @@ const AdminLessons = () => {
     const errors = {};
 
     if (!newLesson.title.trim()) errors.title = "Lesson title is required";
-    if (!newLesson.description.trim()) errors.description = "Lesson description is required";
+    if (!newLesson.description.trim())
+      errors.description = "Lesson description is required";
     if (!newLesson.videoUrl.trim() && !newLesson.video) {
       errors.video = "Add video URL or upload a video file";
     }
@@ -161,12 +167,9 @@ const AdminLessons = () => {
     return Object.keys(errors).length === 0;
   };
 
-
-
   /* ---------------- SAVE LESSON ---------------- */
 
   const handleSaveLesson = async () => {
-
     if (isSavingLesson) return;
     if (!validateLessonForm()) return;
 
@@ -185,39 +188,37 @@ const AdminLessons = () => {
       if (newLesson.thumbnail)
         formData.append("thumbnail", newLesson.thumbnail);
 
-      if (newLesson.video)
-        formData.append("video", newLesson.video);
+      if (newLesson.video) formData.append("video", newLesson.video);
 
       if (editingId) {
-
         const res = await fetch(
           `http://localhost:7001/api/lessons/${editingId}`,
           {
             method: "PUT",
-            body: formData
-          }
+            body: formData,
+          },
         );
 
         if (!res.ok) {
-          const message = await extractErrorMessage(res, "Failed to update lesson");
+          const message = await extractErrorMessage(
+            res,
+            "Failed to update lesson",
+          );
           throw new Error(message);
         }
-
       } else {
-
-        const res = await fetch(
-          `http://localhost:7001/api/lessons`,
-          {
-            method: "POST",
-            body: formData
-          }
-        );
+        const res = await fetch(`http://localhost:7001/api/lessons`, {
+          method: "POST",
+          body: formData,
+        });
 
         if (!res.ok) {
-          const message = await extractErrorMessage(res, "Failed to create lesson");
+          const message = await extractErrorMessage(
+            res,
+            "Failed to create lesson",
+          );
           throw new Error(message);
         }
-
       }
 
       fetchLessons();
@@ -227,65 +228,71 @@ const AdminLessons = () => {
       setFormErrors({});
       setFeedback({
         type: "success",
-        message: editingId ? "Lesson updated successfully" : "Lesson created successfully"
+        message: editingId
+          ? "Lesson updated successfully"
+          : "Lesson created successfully",
       });
 
       setNewLesson(emptyLessonForm);
-
     } catch (err) {
       console.log(err);
-      setFeedback({ type: "error", message: err.message || "Failed to save lesson" });
+      setFeedback({
+        type: "error",
+        message: err.message || "Failed to save lesson",
+      });
     } finally {
       setIsSavingLesson(false);
     }
   };
 
-
-
   /* ---------------- DELETE LESSON ---------------- */
 
   const handleDelete = async (id) => {
-      if (deletingLessonId) return;
+    if (deletingLessonId) return;
 
     if (!window.confirm("Delete this lesson?")) return;
 
     try {
-        setDeletingLessonId(id);
-        setFeedback({ type: "", message: "" });
+      setDeletingLessonId(id);
+      setFeedback({ type: "", message: "" });
 
-        const res = await fetch(
-        `http://localhost:7001/api/lessons/${id}`,
-        {
-          method: "DELETE"
-        }
-      );
+      const res = await fetch(`http://localhost:7001/api/lessons/${id}`, {
+        method: "DELETE",
+      });
 
-        if (!res.ok) {
-          const message = await extractErrorMessage(res, "Failed to delete lesson");
-          throw new Error(message);
-        }
+      if (!res.ok) {
+        const message = await extractErrorMessage(
+          res,
+          "Failed to delete lesson",
+        );
+        throw new Error(message);
+      }
 
       fetchLessons();
-        setFeedback({ type: "success", message: "Lesson deleted successfully" });
-
+      setFeedback({ type: "success", message: "Lesson deleted successfully" });
     } catch (err) {
       console.log(err);
-        setFeedback({ type: "error", message: err.message || "Failed to delete lesson" });
-      } finally {
-        setDeletingLessonId(null);
+      setFeedback({
+        type: "error",
+        message: err.message || "Failed to delete lesson",
+      });
+    } finally {
+      setDeletingLessonId(null);
     }
-
   };
 
   const handleMoveLesson = async (lessonId, direction) => {
     if (reorderingLessonId || deletingLessonId || isSavingLesson) return;
 
-    const ordered = [...lessons].sort((a, b) => (a.order || 0) - (b.order || 0));
+    const ordered = [...lessons].sort(
+      (a, b) => (a.order || 0) - (b.order || 0),
+    );
     const currentIndex = ordered.findIndex((item) => item._id === lessonId);
 
     if (currentIndex < 0) return;
 
-    const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+    const targetIndex =
+      direction === "up" ? currentIndex - 1 : currentIndex + 1;
     if (targetIndex < 0 || targetIndex >= ordered.length) return;
 
     const currentLesson = ordered[currentIndex];
@@ -326,18 +333,18 @@ const AdminLessons = () => {
       setFeedback({ type: "success", message: "Lesson order updated" });
     } catch (err) {
       console.log(err);
-      setFeedback({ type: "error", message: err.message || "Failed to reorder lessons" });
+      setFeedback({
+        type: "error",
+        message: err.message || "Failed to reorder lessons",
+      });
     } finally {
       setReorderingLessonId(null);
     }
   };
 
-
-
   /* ---------------- EDIT LESSON ---------------- */
 
   const handleEdit = (lesson) => {
-
     setEditingId(lesson._id);
 
     setNewLesson({
@@ -345,7 +352,7 @@ const AdminLessons = () => {
       description: lesson.description,
       videoUrl: lesson.videoUrl,
       thumbnail: null,
-      video: null
+      video: null,
     });
 
     setFormErrors({});
@@ -355,24 +362,17 @@ const AdminLessons = () => {
       description: lesson.description,
       videoUrl: lesson.videoUrl,
       thumbnail: null,
-      video: null
+      video: null,
     });
 
     setShowModal(true);
   };
 
-
-
   return (
-
     <div className="p-6 bg-gray-50 min-h-screen">
-
       <div className="flex justify-between mb-6">
-
         <div>
-          <h2 className="text-2xl font-bold">
-            Course Lessons
-          </h2>
+          <h2 className="text-2xl font-bold">Course Lessons</h2>
           <p className="text-sm text-gray-500 mt-1">
             {courseName || "Selected Course"}
           </p>
@@ -392,7 +392,6 @@ const AdminLessons = () => {
         >
           + Add Lesson
         </button>
-
       </div>
 
       {feedback.message ? (
@@ -457,19 +456,14 @@ const AdminLessons = () => {
         </div>
       </div>
 
-
-
       {/* ---------- LESSON CARDS ---------- */}
 
       <div className="grid md:grid-cols-3 gap-6">
-
         {displayedLessons.map((lesson, index) => (
-
           <div
             key={lesson._id}
             className="bg-white rounded-xl shadow hover:shadow-lg transition"
           >
-
             <img
               src={`http://localhost:7001${lesson.thumbnail}`}
               alt=""
@@ -477,17 +471,13 @@ const AdminLessons = () => {
             />
 
             <div className="p-4">
-
               <h3 className="font-semibold">
                 Lesson {lesson.order || index + 1}: {lesson.title}
               </h3>
 
-              <p className="text-sm text-gray-500">
-                {lesson.description}
-              </p>
+              <p className="text-sm text-gray-500">{lesson.description}</p>
 
               <div className="flex gap-4 mt-3 text-gray-600 text-sm">
-
                 <div className="flex items-center gap-1">
                   <FiEye /> {lesson.views || 0}
                 </div>
@@ -503,11 +493,9 @@ const AdminLessons = () => {
                 <div className="flex items-center gap-1">
                   <FiThumbsDown /> {lesson.dislikes || 0}
                 </div>
-
               </div>
 
               <div className="flex justify-end gap-3 mt-4">
-
                 <button
                   disabled={reorderingLessonId === lesson._id}
                   onClick={() => handleMoveLesson(lesson._id, "up")}
@@ -535,27 +523,17 @@ const AdminLessons = () => {
                 >
                   {deletingLessonId === lesson._id ? "..." : <FiTrash2 />}
                 </button>
-
               </div>
-
             </div>
-
           </div>
-
         ))}
-
       </div>
-
-
 
       {/* ---------- MODAL ---------- */}
 
       {showModal && (
-
         <div className="fixed inset-0 bg-black/40 flex justify-center items-center">
-
           <div className="bg-white p-6 rounded-xl w-[450px]">
-
             <h2 className="text-lg font-semibold mb-4">
               {editingId ? "Edit Lesson" : "Add Lesson"}
             </h2>
@@ -564,12 +542,10 @@ const AdminLessons = () => {
               placeholder="Lesson title"
               className="border p-2 w-full mb-3"
               value={newLesson.title}
-              onChange={(e)=>
-                {
-                  setNewLesson({...newLesson,title:e.target.value});
-                  setFormErrors((prev) => ({ ...prev, title: "" }));
-                }
-              }
+              onChange={(e) => {
+                setNewLesson({ ...newLesson, title: e.target.value });
+                setFormErrors((prev) => ({ ...prev, title: "" }));
+              }}
             />
             {formErrors.title ? (
               <p className="text-sm text-red-600 mb-3">{formErrors.title}</p>
@@ -579,59 +555,55 @@ const AdminLessons = () => {
               placeholder="Description"
               className="border p-2 w-full mb-3"
               value={newLesson.description}
-              onChange={(e)=>
-                {
-                  setNewLesson({...newLesson,description:e.target.value});
-                  setFormErrors((prev) => ({ ...prev, description: "" }));
-                }
-              }
+              onChange={(e) => {
+                setNewLesson({ ...newLesson, description: e.target.value });
+                setFormErrors((prev) => ({ ...prev, description: "" }));
+              }}
             />
             {formErrors.description ? (
-              <p className="text-sm text-red-600 mb-3">{formErrors.description}</p>
+              <p className="text-sm text-red-600 mb-3">
+                {formErrors.description}
+              </p>
             ) : null}
 
             <input
               placeholder="Video URL"
               className="border p-2 w-full mb-3"
               value={newLesson.videoUrl}
-              onChange={(e)=>
-                {
-                  setNewLesson({...newLesson,videoUrl:e.target.value});
-                  setFormErrors((prev) => ({ ...prev, video: "" }));
-                }
-              }
+              onChange={(e) => {
+                setNewLesson({ ...newLesson, videoUrl: e.target.value });
+                setFormErrors((prev) => ({ ...prev, video: "" }));
+              }}
             />
 
             <p className="text-xs text-gray-500 mb-3">
               Duration will be auto-detected from the uploaded video.
             </p>
 
-            <label className="text-sm font-medium">
-            Thumbnail
-            </label>
+            <label className="text-sm font-medium">Thumbnail</label>
 
             <input
               type="file"
               className="mb-3"
-              onChange={(e)=>
+              onChange={(e) =>
                 setNewLesson({
                   ...newLesson,
-                  thumbnail:e.target.files[0]
+                  thumbnail: e.target.files[0],
                 })
               }
             />
 
             <label className="text-sm font-medium">
-            <br /> Video File
+              <br /> Video File
             </label>
 
             <input
               type="file"
               className="mb-3"
-              onChange={(e)=>
+              onChange={(e) =>
                 setNewLesson({
                   ...newLesson,
-                  video:e.target.files[0]
+                  video: e.target.files[0],
                 })
               }
             />
@@ -640,11 +612,7 @@ const AdminLessons = () => {
             ) : null}
 
             <div className="flex justify-end gap-3 mt-5">
-
-              <button
-                disabled={isSavingLesson}
-                onClick={closeLessonModal}
-              >
+              <button disabled={isSavingLesson} onClick={closeLessonModal}>
                 Cancel
               </button>
 
@@ -655,15 +623,10 @@ const AdminLessons = () => {
               >
                 {isSavingLesson ? "Saving..." : "Save"}
               </button>
-
             </div>
-
           </div>
-
         </div>
-
       )}
-
     </div>
   );
 };
