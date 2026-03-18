@@ -20,6 +20,8 @@ const lessonProgressSchema = new mongoose.Schema({
   },
 }, { _id: false });
 
+const dns = require('dns');
+dns.setServers(['8.8.8.8', '8.8.4.4']);
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
