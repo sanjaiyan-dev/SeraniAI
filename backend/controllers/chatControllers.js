@@ -1,19 +1,18 @@
 const Chat = require("../models/chatModels");
-const Groq = require("groq-sdk");
+const OpenAI = require("openai");
 const { getOrCreateCollection } = require("../config/chromaClient");
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
+const openai = process.env.OPENAI_API_KEY ? new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+}) : null;
 
 function getModelName() {
-  // you already have MODEL in .env
-  return process.env.MODEL || "llama-3.1-8b-instant";
+  return process.env.MODEL || "gpt-4o-mini";
 }
 
 async function getAiReply(history, context = "") {
-  if (!process.env.GROQ_API_KEY) {
-    return "GROQ_API_KEY is not set in backend/.env";
+  if (!process.env.OPENAI_API_KEY) {
+    return "OPENAI_API_KEY is not set in backend/.env";
   }
 
   // Combine history with retrieved context if available
@@ -28,7 +27,7 @@ async function getAiReply(history, context = "") {
     });
   }
 
-  const completion = await groq.chat.completions.create({
+  const completion = await openai.chat.completions.create({
     model: getModelName(),
     messages,
     temperature: 0.7,
