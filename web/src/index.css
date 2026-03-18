@@ -3,6 +3,11 @@
 @tailwind utilities;
 
 body {
-  background-color: #eef2ff; /* Light blue background from screenshot */
+  background-color: #eef2ff; /* Light blue background */
   font-family: 'Inter', sans-serif;
+}
+
+/* Respect theme class on html for dark mode */
+html.dark body {
+  background-color: #0F172A; /* Dark background for dark mode */
 }

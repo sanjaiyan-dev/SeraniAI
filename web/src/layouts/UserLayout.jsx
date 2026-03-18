@@ -27,7 +27,7 @@ const UserLayout = () => {
     {name:'Courses', icon:<FiGrid />, path:'/dashboard/courses'}
   ];
   return (
-    <div className='flex h-screen bg-[#f0f9ff] dark:bg-[1#f2937] transition-colors duration-300 font-sans'>
+    <div className='flex h-screen bg-[#f0f9ff] dark:bg-[#0F172A] transition-colors duration-300 font-sans'>
       <aside className='w-64 flex-shrink-0 bg-[#8cbbf1] dark:bg-[#111827] flex flex-col justify-between transition-colors duration-300'>
         <div className='p-6'>
           <h1 className='text-3xl font-bold text-white mb-10 tracking-wide'>SeraniAI</h1>
@@ -77,7 +77,7 @@ const UserLayout = () => {
           </div>
         </div>
       </aside>
-      <main className='flex-1 p-8 overflow-y-auto'>
+      <main className='flex-1 p-6 overflow-y-auto'>
         <Outlet />
       </main>
     </div>
