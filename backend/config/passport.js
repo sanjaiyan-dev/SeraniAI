@@ -68,7 +68,6 @@ passport.use(
     },
   ),
 );
-}
 
 // ---------------- GitHub ----------------
 passport.use(
@@ -151,7 +150,6 @@ passport.use(
     },
   ),
 );
-}
 
 // ---------------- Facebook ----------------
 if (process.env.FACEBOOK_APP_ID && process.env.FACEBOOK_APP_SECRET) {
