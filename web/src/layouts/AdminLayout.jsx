@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
-import { FiUsers, FiLogOut, FiSun, FiMoon, FiBook, FiCreditCard } from 'react-icons/fi';
+import { FiUsers, FiLogOut, FiSun, FiMoon, FiBook, FiCreditCard, FiCheckSquare } from 'react-icons/fi';
 
 const AdminLayout = () => {
   const { theme, toggleTheme } = useTheme();
@@ -27,7 +27,6 @@ const AdminLayout = () => {
 
         {/* Navigation */}
         <nav className="flex-1 px-4 py-6 space-y-2">
-          
           <Link
             to="/admin/users"
             className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700"
@@ -44,7 +43,14 @@ const AdminLayout = () => {
             Courses
           </Link>
 
-          {/* ✅ NEW: Subscriptions / Payments */}
+          <Link
+            to="/admin/tasks"
+            className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700"
+          >
+            <FiCheckSquare className="mr-3" />
+            Tasks
+          </Link>
+
           <Link
             to="/admin/subscriptions"
             className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700"
@@ -52,12 +58,10 @@ const AdminLayout = () => {
             <FiCreditCard className="mr-3" />
             Subscriptions
           </Link>
-
         </nav>
 
         {/* Bottom Section */}
         <div className="px-4 py-4 border-t dark:border-gray-700">
-          
           {/* Theme Toggle */}
           <button
             onClick={() => toggleTheme(theme === 'light' ? 'dark' : 'light')}
@@ -75,7 +79,6 @@ const AdminLayout = () => {
             <FiLogOut className="mr-3" />
             Logout
           </button>
-
         </div>
       </aside>
 
