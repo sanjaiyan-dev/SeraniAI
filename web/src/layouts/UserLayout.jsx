@@ -1,8 +1,8 @@
-import React, {useEffect, useState} from 'react'
+import React, { useEffect, useState } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
-import { FiLogOut, FiSun, FiMoon, FiHome, FiMessageSquare, FiBook, FiGrid, FiChevronLeft } from 'react-icons/fi'
 import { getUserSubscription } from '../api/subscriptionApi'
+import { FiLogOut, FiSun, FiMoon, FiHome, FiMessageSquare, FiBook, FiGrid, FiCheckSquare } from 'react-icons/fi'
 
 const UserLayout = () => {
   const {theme, toggleTheme}=useTheme();
@@ -48,7 +48,8 @@ const UserLayout = () => {
     {name:'Home', icon:<FiHome />, path:'/dashboard'},
     {name:'AI Chat', icon:<FiMessageSquare />, path:'/dashboard/chat'},
     {name:'Journal', icon:<FiBook />, path:'/dashboard/journal'},
-    {name:'Courses', icon:<FiGrid />, path:'/dashboard/courses'}
+    {name:'Courses', icon:<FiGrid />, path:'/dashboard/courses'},
+    {name:'Daily Tasks', icon:<FiCheckSquare />, path:'/dashboard/tasks'}
   ];
   return (
     <div className='flex h-screen bg-[#f0f9ff] dark:bg-[#0F172A] transition-colors duration-300 font-sans'>
