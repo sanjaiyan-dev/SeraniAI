@@ -2,33 +2,22 @@ import React, { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // Public Pages
-const Landing = lazy(() => import("./pages/Landing"));
 const Login = lazy(() => import("./pages/Login"));
-const Register = lazy(() => import("./pages/Register"));
-const Verify = lazy(() => import("./pages/Verify"));
-const Subscription = lazy(() => import("./pages/Subscription"));
-const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const LoginSuccess = lazy(() => import("./pages/LoginSuccess"));
-const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 
 // Admin Pages
 
 /* ---------------- ADMIN PAGES ---------------- */
 
 import AdminLayout from "./layouts/AdminLayout";
-import AdminUsers from "./pages/admin/AdminUsers";
-import AdminCourses from "./pages/admin/AdminCourses";
-import AdminLessons from "./pages/admin/AdminLessons";
 import AdminTasks from "./pages/admin/AdminTasks";
 
 /* ---------------- USER PAGES ---------------- */
 
 import UserLayout from "./layouts/UserLayout";
 import DashboardHome from "./pages/user/DashboardHome";
-import AIChat from "./pages/user/AIChatbot/AIChat";
+import ChatInterface from "./pages/user/AIChatbot/ChatInterface";
 import Journal from "./pages/user/Journal";
-import Courses from "./pages/user/Courses";
-import CourseDetails from "./pages/user/CourseDetails";
 import TasksPage from "./pages/user/TasksPage";
 
 /* ---------------- COMPONENTS ---------------- */
@@ -48,14 +37,9 @@ function App() {
         <Routes>
           {/* ---------- PUBLIC ROUTES ---------- */}
 
-          <Route path="/" element={<Landing />} />
+          <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
           <Route path="/login-success" element={<LoginSuccess />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/verify" element={<Verify />} />
-          <Route path="/subscription" element={<Subscription />} />
 
           {/* ---------- USER DASHBOARD ROUTES ---------- */}
 
@@ -69,19 +53,13 @@ function App() {
               <Route index element={<DashboardHome />} />
 
               {/* Chat */}
-              <Route path="chat" element={<AIChat />} />
+              <Route path="chat" element={<ChatInterface />} />
 
               {/* Journal */}
               <Route path="journal" element={<Journal />} />
 
-              {/* Courses Page */}
-              <Route path="courses" element={<Courses />} />
-
               {/* Daily Tasks Page */}
               <Route path="tasks" element={<TasksPage />} />
-
-              {/* Course Details Page */}
-              <Route path="course/:courseId" element={<CourseDetails />} />
             </Route>
           </Route>
 
@@ -90,22 +68,16 @@ function App() {
           <Route element={<PrivateRoute allowedRoles={["admin"]} />}>
             <Route path="/admin" element={<AdminLayout />}>
               {/* Admin Dashboard */}
-              <Route index element={<AdminUsers />} />
+              <Route index element={<AdminTasks />} />
 
               {/* Users */}
-              <Route path="users" element={<AdminUsers />} />
+              <Route path="users" element={<AdminTasks />} />
 
               {/* Courses */}
-              <Route path="courses" element={<AdminCourses />} />
+              <Route path="courses" element={<AdminTasks />} />
 
               {/* Tasks */}
               <Route path="tasks" element={<AdminTasks />} />
-
-              {/* Lessons inside a course */}
-              <Route
-                path="courses/:courseId/lessons"
-                element={<AdminLessons />}
-              />
             </Route>
           </Route>
         </Routes>
